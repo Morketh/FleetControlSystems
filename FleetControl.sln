@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StationController", "IngameScript1\StationController.csproj", "{460D9AA7-D597-49B7-804E-E560AF38DBCA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiningDrone", "IngameScript2\MiningDrone.csproj", "{B1B13DF5-35B9-4D27-8D20-9EA6D2124D38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconDrone", "IngameScript3\ReconDrone.csproj", "{39C61871-DCA2-4307-8F41-41BCFD1BAA1A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockAutoPilot", "DockAutoPilot\DockAutoPilot.csproj", "{2667059E-EC7A-4A85-9E36-CAD884675F0E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{460D9AA7-D597-49B7-804E-E560AF38DBCA}.Debug|x64.ActiveCfg = Debug|x64
+		{460D9AA7-D597-49B7-804E-E560AF38DBCA}.Debug|x64.Build.0 = Debug|x64
+		{B1B13DF5-35B9-4D27-8D20-9EA6D2124D38}.Debug|x64.ActiveCfg = Debug|x64
+		{B1B13DF5-35B9-4D27-8D20-9EA6D2124D38}.Debug|x64.Build.0 = Debug|x64
+		{39C61871-DCA2-4307-8F41-41BCFD1BAA1A}.Debug|x64.ActiveCfg = Debug|x64
+		{39C61871-DCA2-4307-8F41-41BCFD1BAA1A}.Debug|x64.Build.0 = Debug|x64
+		{2667059E-EC7A-4A85-9E36-CAD884675F0E}.Debug|x64.ActiveCfg = Debug|x64
+		{2667059E-EC7A-4A85-9E36-CAD884675F0E}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E461602A-B7BC-4AAD-8211-57E84EDC610C}
+	EndGlobalSection
+EndGlobal
