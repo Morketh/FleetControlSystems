@@ -35,6 +35,15 @@ namespace IngameScript
         // have to use the template if you don't want to. Just do so the first
         // time to see what a utility class looks like.
 
+        // Instantiate a shared instance of the parser
+        MyIni _ini = new MyIni();
+
+        bool _outputNow;
+        string _textToOutput;
+        string _DroneGroupName_;
+        string _outputName;
+        IMyTextPanel _outputPanel;
+
         public Program()
         {
             // The constructor, called only once every session and
@@ -47,6 +56,31 @@ namespace IngameScript
             // It's recommended to set RuntimeInfo.UpdateFrequency 
             // here, which will allow your script to run itself without a 
             // timer block.
+
+            // Parse PB Ini File for drones
+            MyIniParseResult result;
+            if (!_ini.TryParse(Me.CustomData, out result))
+                throw new Exception(result.ToString());
+
+            // Get the value of the "outputNow" key under the "demo" section.
+            // Then, by calling ToBoolean(), we try to convert it into a
+            // bool value.
+            _outputNow = _ini.Get("demo", "outputNow").ToBoolean();
+
+            // Get the value of the "output" key. This time we just want the
+            // string.
+            _outputName = _ini.Get("demo", "output").ToString();
+
+            // Then the final value
+            _textToOutput = _ini.Get("demo", "textToOutput").ToString();
+
+            // If the configuration says that the text should be added immediately, so we
+            // tell the programmable block to run itself every game tick automatically.
+            if (_outputNow)
+            {
+                Runtime.UpdateFrequency = UpdateFrequency.Update1;
+            }
+
         }
 
         public void Save()
@@ -59,6 +93,7 @@ namespace IngameScript
             // needed.
         }
 
+        // MAIN PROGRAM LOOP //
         public void Main(string argument, UpdateType updateSource)
         {
             // The main entry point of the script, invoked every time
@@ -70,6 +105,27 @@ namespace IngameScript
             // 
             // The method itself is required, but the arguments above
             // can be removed if not needed.
+
+            // Block List
+            List<IMyTerminalBlock> DroneCMD = new List<IMyTerminalBlock>();
+            //Get All Blocks on grid with Type <IMyTextPanel> and filter only [drone] ini style configuration panels
+            GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(DroneCMD, lcd => MyIni.HasSection(lcd.CustomData, "drone"));
+            int count = DroneCMD.Count;
+
+            // Loop through Drone Pannels and display data fields on screen
+            for(int i = 0; i < count; i++)
+            {
+                _outputPanel = GridTerminalSystem.GetBlockWithName(DroneCMD[i].CustomName) as IMyTextPanel;
+                MyIniParseResult result;
+                if (!_ini.TryParse(_outputPanel.CustomData, out result))
+                    throw new Exception(result.ToString());
+                _DroneGroupName_ = _ini.Get("drone", "name").ToString();
+                _outputPanel.ShowPublicTextOnScreen(); //turn text display on
+                _outputPanel.CustomName = "[" + _DroneGroupName_ + "] Commands";
+                _outputPanel.WritePublicText("Drone Group: " + _DroneGroupName_, false);
+                _outputPanel.WritePublicText("\n", true);
+            }
         }
+
     }
 }
