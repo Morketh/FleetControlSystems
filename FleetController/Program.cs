@@ -40,46 +40,56 @@ namespace IngameScript
 
         bool _outputNow;
         string _textToOutput;
-        string _DroneGroupName_;
+        //string _DroneGroupName_;
         string _outputName;
-        IMyTextPanel _outputPanel;
+        //IMyTextPanel _outputPanel;
+        //IMyAirtightHangarDoor _droneDoor;
+
+        //List of <DroneBay> Objects
+        List<DroneBay> MyDroneBays = new List<DroneBay>();
+
+        //Terminal Block Lists by type
+        List<IMyTerminalBlock> DroneCMD = new List<IMyTerminalBlock>();
+        List<IMyAirtightHangarDoor> DroneDoors = new List<IMyAirtightHangarDoor>();
+        List<IMyTerminalBlock> BlockCache = new List<IMyTerminalBlock>();
+
+        //Whip's Profiler Graph Code
+        int count = 1;
+        int maxSeconds = 30;
+        StringBuilder profile = new StringBuilder();
+        bool hasWritten = false;
+        void ProfilerGraph()
+        {
+            if (count <= maxSeconds * 60)
+            {
+                double timeToRunCode = Runtime.LastRunTimeMs;
+
+                profile.Append(timeToRunCode.ToString()).Append("\n");
+                count++;
+            }
+            else if (!hasWritten)
+            {
+                var screen = GridTerminalSystem.GetBlockWithName("DEBUG") as IMyTextPanel;
+                screen?.WritePublicText(profile.ToString());
+                screen?.ShowPublicTextOnScreen();
+                if (screen != null)
+                    hasWritten = true;
+            }
+        }
 
         public Program()
         {
             // The constructor, called only once every session and
             // always before any other method is called. Use it to
             // initialize your script. 
-            //     
+            //
             // The constructor is optional and can be removed if not
             // needed.
-            // 
+            //
             // It's recommended to set RuntimeInfo.UpdateFrequency 
             // here, which will allow your script to run itself without a 
             // timer block.
-
-            // Parse PB Ini File for drones
-            MyIniParseResult result;
-            if (!_ini.TryParse(Me.CustomData, out result))
-                throw new Exception(result.ToString());
-
-            // Get the value of the "outputNow" key under the "demo" section.
-            // Then, by calling ToBoolean(), we try to convert it into a
-            // bool value.
-            _outputNow = _ini.Get("demo", "outputNow").ToBoolean();
-
-            // Get the value of the "output" key. This time we just want the
-            // string.
-            _outputName = _ini.Get("demo", "output").ToString();
-
-            // Then the final value
-            _textToOutput = _ini.Get("demo", "textToOutput").ToString();
-
-            // If the configuration says that the text should be added immediately, so we
-            // tell the programmable block to run itself every game tick automatically.
-            if (_outputNow)
-            {
-                Runtime.UpdateFrequency = UpdateFrequency.Update1;
-            }
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
 
         }
 
@@ -106,25 +116,30 @@ namespace IngameScript
             // The method itself is required, but the arguments above
             // can be removed if not needed.
 
-            // Block List
-            List<IMyTerminalBlock> DroneCMD = new List<IMyTerminalBlock>();
-            //Get All Blocks on grid with Type <IMyTextPanel> and filter only [drone] ini style configuration panels
-            GridTerminalSystem.GetBlocksOfType<IMyTextPanel>(DroneCMD, lcd => MyIni.HasSection(lcd.CustomData, "drone"));
-            int count = DroneCMD.Count;
+            ProfilerGraph();
+
+            GridTerminalSystem.GetBlocks(BlockCache);
+
+            int TotalBlocks = BlockCache.Count;
+            //MyIniParseResult result;
+            
+            for (int i = 0; i < TotalBlocks; i++)
+            {
+                var hangDoor = BlockCache[i] as IMyAirtightHangarDoor;
+
+                
+                // its a door and its open so close it.
+                if (hangDoor != null && hangDoor.OpenRatio > 0.9)
+                {
+                    hangDoor.CloseDoor();
+                } else
+                {
+
+                }
+            }
 
             // Loop through Drone Pannels and display data fields on screen
-            for(int i = 0; i < count; i++)
-            {
-                _outputPanel = GridTerminalSystem.GetBlockWithName(DroneCMD[i].CustomName) as IMyTextPanel;
-                MyIniParseResult result;
-                if (!_ini.TryParse(_outputPanel.CustomData, out result))
-                    throw new Exception(result.ToString());
-                _DroneGroupName_ = _ini.Get("drone", "name").ToString();
-                _outputPanel.ShowPublicTextOnScreen(); //turn text display on
-                _outputPanel.CustomName = "[" + _DroneGroupName_ + "] Commands";
-                _outputPanel.WritePublicText("Drone Group: " + _DroneGroupName_, false);
-                _outputPanel.WritePublicText("\n", true);
-            }
+            Echo("Program init");
         }
 
     }
