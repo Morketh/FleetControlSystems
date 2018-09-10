@@ -37,13 +37,7 @@ namespace IngameScript
 
         // Instantiate a shared instance of the parser
         MyIni _ini = new MyIni();
-
-        bool _outputNow;
-        string _textToOutput;
-        //string _DroneGroupName_;
-        string _outputName;
-        //IMyTextPanel _outputPanel;
-        //IMyAirtightHangarDoor _droneDoor;
+        public bool FirstRun = true;
 
         //List of <DroneBay> Objects
         List<DroneBay> MyDroneBays = new List<DroneBay>();
@@ -89,6 +83,7 @@ namespace IngameScript
             // It's recommended to set RuntimeInfo.UpdateFrequency 
             // here, which will allow your script to run itself without a 
             // timer block.
+            
             Runtime.UpdateFrequency = UpdateFrequency.Update100;
 
         }
@@ -102,6 +97,8 @@ namespace IngameScript
             // This method is optional and can be removed if not
             // needed.
         }
+
+        //Get blocks -> foreach (var block in blocks) {moduleX.CheckBlock(block);}
 
         // MAIN PROGRAM LOOP //
         public void Main(string argument, UpdateType updateSource)
@@ -117,9 +114,15 @@ namespace IngameScript
             // can be removed if not needed.
 
             ProfilerGraph();
-
-            GridTerminalSystem.GetBlocks(BlockCache);
-
+            
+            if(FirstRun == true || argument == (string)"refresh")
+            {
+                FirstRun = false;
+                GridTerminalSystem.GetBlocks(BlockCache);
+            }
+            
+            MyIniParseResult result;
+            
             int TotalBlocks = BlockCache.Count;
             //MyIniParseResult result;
             
@@ -127,11 +130,15 @@ namespace IngameScript
             {
                 var hangDoor = BlockCache[i] as IMyAirtightHangarDoor;
 
-                
                 // its a door and its open so close it.
                 if (hangDoor != null && hangDoor.OpenRatio > 0.9)
                 {
-                    hangDoor.CloseDoor();
+                    // if door is grouped under miner-1 close it and nothing else
+                    MyIni.HasSection(hangDoor.CustomData, "drone");
+                    if (_ini.TryParse(hangDoor.CustomData, out result) && _ini.Get("drone", "name").ToString().ToLower() == (string)"miner-1")
+                    {
+                        hangDoor.CloseDoor();
+                    }
                 } else
                 {
 
